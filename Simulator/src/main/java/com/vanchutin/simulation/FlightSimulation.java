@@ -2,6 +2,8 @@ package com.vanchutin.simulation;
 
 import com.vanchutin.drone.Drone;
 import com.vanchutin.drone.DroneState;
+import com.vanchutin.drone.StateEventMessage;
+import com.vanchutin.event.StateEvent;
 import com.vanchutin.jmavlib.GlobalPositionProjector;
 import com.vanchutin.jmavlib.LatLonAlt;
 import lombok.extern.slf4j.Slf4j;
@@ -89,8 +91,10 @@ public class FlightSimulation implements Runnable {
             LatLonAlt newPosition = mission.changeAlt(5, currentPosition);
             drone.setPosition(newPosition);
         }
-        else
+        else {
             droneState = DroneState.ON_LAND;
+            drone.sendMessage(StateEventMessage.LANDING_DETECTED);
+        }
     }
 
     private void takingOffProcess() {
@@ -105,6 +109,7 @@ public class FlightSimulation implements Runnable {
             droneState = DroneState.MISSION;
             drone.setSpeed(mission.getSpeed());
             log.info("ready to fly");
+            drone.sendMessage(StateEventMessage.MISSION_STARTED);
         }
     }
 
@@ -119,6 +124,7 @@ public class FlightSimulation implements Runnable {
                 drone.setPosition(home);
                 log.info("take off detected. going to client");
                 droneState = DroneState.TAKING_OFF;
+                drone.sendMessage(StateEventMessage.TAKEOFF_DETECTED);
                 break;
 
             case TO_CLIENT:
@@ -126,6 +132,7 @@ public class FlightSimulation implements Runnable {
                 log.info(String.format("landed on client side , %d", time));
                 mission.init(client, home);
                 log.info("take off detected. going home");
+                drone.sendMessage(StateEventMessage.TAKEOFF_DETECTED);
 
                 droneState = DroneState.TAKING_OFF;
                 break;
@@ -150,6 +157,7 @@ public class FlightSimulation implements Runnable {
         if(mission.completed(drone.getPosition())){
             droneState = DroneState.LANDING;
             drone.setSpeed(0);
+            drone.sendMessage(StateEventMessage.LANDING);
         }
     }
 
