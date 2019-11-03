@@ -16,10 +16,13 @@ public class HttpClient {
 
     public void post(String message){
 
+        HttpURLConnection con = null;
+
         try {
             URL url = new URL(producerUrl);
 
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con = (HttpURLConnection) url.openConnection();
+
 
             con.setRequestMethod("GET");
             con.setRequestProperty("Content-Type", "application/json");
@@ -34,6 +37,9 @@ public class HttpClient {
         } catch (IOException e) {
             log.error(e.getMessage());
             e.printStackTrace();
+        }
+        finally {
+            con.disconnect();
         }
 
     }

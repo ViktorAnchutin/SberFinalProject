@@ -2,11 +2,10 @@ package com.vanchutin;
 
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vanchutin.drone.Drone;
-import com.vanchutin.event.Event;
-import com.vanchutin.generator.EventGenerator;
+
 import com.vanchutin.httpClient.HttpClient;
+import com.vanchutin.jmavlib.LatLonAlt;
 import com.vanchutin.simulation.SimulationManager;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +23,7 @@ public class Application {
             drones.put(i, new Drone(i, new HttpClient()));
         }
         // create simulation manager
-        SimulationManager simulationManager = new SimulationManager(drones);
+        SimulationManager simulationManager = new SimulationManager(drones, new LatLonAlt(55.980261, 37.899619, 0));
         simulationManager.start();
     }
 }

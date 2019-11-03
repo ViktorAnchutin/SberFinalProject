@@ -6,51 +6,45 @@ import com.vanchutin.jmavlib.GlobalPositionProjector;
 import com.vanchutin.jmavlib.LatLonAlt;
 import lombok.extern.slf4j.Slf4j;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.sqrt;
+
 
 @Slf4j
 public class FlightSimulation implements Runnable {
 
-    public FlightSimulation(Drone drone, LatLonAlt home, LatLonAlt destination){
+    private LatLonAlt home;
+    private LatLonAlt client;
+    private Mission mission;
+    private Drone drone;
+
+    private ThreadCallback<Drone> callback;
+
+    private DroneState droneState = DroneState.ON_LAND;
+    private LandedState landedState = LandedState.START;
+
+    private boolean deliveryCompleted = false;
+    private int time;
+
+    public FlightSimulation(Drone drone, LatLonAlt home, LatLonAlt client){
         this.drone = drone;
-        this.destination = destination;
+        this.client = client;
         this.home = home;
     }
 
-    private int droneId;
-    LatLonAlt home;
-    LatLonAlt destination;
-    GlobalPositionProjector projector;
-    Drone drone;
-    DroneState droneState = DroneState.ON_LAND;
-    DeliveryState deliveryState = DeliveryState.TO_CLIENT;
-    boolean goHome;
-    double distanceX, distanceY, distance;
-    int takeOffCounter;
-    final int  takeOffTime = 10;
-    double speedX, speedY, cruiseSpeed = 13.8;//11; // m / s
-    double dt = 1;
-    double[] destinationLocalCoordinates;
-    double[] startLocalCoordinates;
-    boolean deliveryCompleted = false;
-    int time;
-
-
-
-
+    public void setCallback(ThreadCallback<Drone> cb){
+        this.callback = cb;
+    }
 
 
     public void run() {
 
-        projector = new GlobalPositionProjector();
+        mission = new Mission(new GlobalPositionProjector());
+        drone.setBattery(100);
 
         while(true) {
             update();
-            if (deliveryCompleted) {
-                // set drone flag as available
-            break;
-            }
+            if (deliveryCompleted)
+                break;
+
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -58,6 +52,7 @@ public class FlightSimulation implements Runnable {
             }
         }
 
+        callback.execute(drone);
     }
 
     private void update(){
@@ -82,14 +77,17 @@ public class FlightSimulation implements Runnable {
                 break;
         }
 
+        drone.updateBattery();
+        drone.sendTelemetry();
     }
 
     private void landingProcess(){
         log.info(String.format("landing , %d", time));
-        double altitude = drone.getAltitude();
-        if(altitude>1)
+        LatLonAlt currentPosition = drone.getPosition();
+        if(currentPosition.alt > 1)
         {
-            drone.setAltitude(altitude - 5);
+            LatLonAlt newPosition = mission.changeAlt(5, currentPosition);
+            drone.setPosition(newPosition);
         }
         else
             droneState = DroneState.ON_LAND;
@@ -97,14 +95,15 @@ public class FlightSimulation implements Runnable {
 
     private void takingOffProcess() {
         log.info(String.format("taking off , %d", time));
-        double altitude = drone.getAltitude();
-        if (altitude<20)
+        LatLonAlt currentPosition = drone.getPosition();
+        if (currentPosition.alt < 20)
         {
-            altitude += 5;
-            drone.setAltitude(altitude);
+            LatLonAlt newPosition = mission.changeAlt(-5, currentPosition);
+            drone.setPosition(newPosition);
         }
         else {
             droneState = DroneState.MISSION;
+            drone.setSpeed(mission.getSpeed());
             log.info("ready to fly");
         }
     }
@@ -112,80 +111,52 @@ public class FlightSimulation implements Runnable {
 
     private void onLandProcess(){
 
-        switch (deliveryState){
-            case TO_CLIENT:
-                projector.init(home);
-                computeDistance(destination);
+        switch (landedState){
+
+            case START:
+                landedState = LandedState.TO_CLIENT;
+                mission.init(home, client);
                 drone.setPosition(home);
                 log.info("take off detected. going to client");
-                computeSpeedProjections();
                 droneState = DroneState.TAKING_OFF;
-                deliveryState = DeliveryState.TO_HOME;
+                break;
+
+            case TO_CLIENT:
+                landedState = LandedState.TO_HOME;
+                log.info(String.format("landed on client side , %d", time));
+                mission.init(client, home);
+                log.info("take off detected. going home");
+
+                droneState = DroneState.TAKING_OFF;
                 break;
 
             case TO_HOME:
-                log.info(String.format("landed on client side , %d", time));
-                projector.init(drone.getPosition());
-                computeDistance(home);
-                log.info("take off detected. going home");
-                computeSpeedProjections();
-                droneState = DroneState.TAKING_OFF;
-                deliveryState = DeliveryState.COMPLETED;
+                landedState = LandedState.COMPLETED;
+                log.info(String.format("landed at home ,  %d", time));
                 break;
 
             case COMPLETED:
-                log.info(String.format("landed at home ,  %d", time));
                 deliveryCompleted = true;
                 break;
 
             default:
-                throw new IllegalArgumentException(" no such delivery state!");
+                throw new IllegalArgumentException(" no such landed state!");
         }
-
-
-
 
     }
 
     private void missionProcess(){
         updatePosition();
-        if(missionCompleted()){
+        if(mission.completed(drone.getPosition())){
             droneState = DroneState.LANDING;
+            drone.setSpeed(0);
         }
     }
 
-    private boolean missionCompleted(){
-        LatLonAlt currentPosition = drone.getPosition();
-        double[] currentPositionLocalCoordinates = projector.project(currentPosition);
-        double distanceX = currentPositionLocalCoordinates[0] - destinationLocalCoordinates[0] ;
-        double distanceY = currentPositionLocalCoordinates[1] - destinationLocalCoordinates[1];
-        return 20 > sqrt(distanceX*distanceX + distanceY*distanceY);
-
-    }
-
-
     private void updatePosition(){
-        double dx = speedX*dt;
-        double dy = speedY*dt;
-        double[] arr = {dx, dy, 0};
-        LatLonAlt newPosition  = drone.getPosition().add(arr) ;
+        LatLonAlt newPosition  = mission.updatePosition(drone.getPosition());
         log.info(String.format("new position: %s , %d", newPosition, time));
         drone.setPosition(newPosition);
     }
-
-    private void computeSpeedProjections(){
-            speedX = cruiseSpeed * distanceX / distance;
-            speedY = cruiseSpeed * distanceY / distance;
-    }
-
-    private void computeDistance(LatLonAlt destinationPoint){
-
-            destinationLocalCoordinates = projector.project(destinationPoint);
-            distanceX = destinationLocalCoordinates[0];
-            distanceY = destinationLocalCoordinates[1];
-            distance = sqrt(distanceX*distanceX + distanceY*distanceY);
-            log.info(String.format("distance to fly: %.3f km", distance/1000));
-    }
-
 
 }
