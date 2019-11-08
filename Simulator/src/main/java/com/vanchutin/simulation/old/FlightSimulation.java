@@ -1,9 +1,7 @@
-package com.vanchutin.simulation;
+package com.vanchutin.simulation.old;
 
 import com.vanchutin.drone.Drone;
 import com.vanchutin.drone.DroneState;
-import com.vanchutin.drone.StateEventMessage;
-import com.vanchutin.event.StateEvent;
 import com.vanchutin.jmavlib.GlobalPositionProjector;
 import com.vanchutin.jmavlib.LatLonAlt;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +21,11 @@ public class FlightSimulation implements Runnable {
     private DroneState droneState = DroneState.ON_LAND;
     private LandedState landedState = LandedState.START;
 
+    private TakeOff takeOffProcess = new TakeOff();
+    private Landing landingProcess = new Landing();
+
     private boolean deliveryCompleted = false;
-    private int time;
+
 
     public FlightSimulation(Drone drone, LatLonAlt home, LatLonAlt client){
         this.drone = drone;
@@ -59,8 +60,6 @@ public class FlightSimulation implements Runnable {
 
     private void update(){
 
-        time++;
-
         switch (droneState){
             case ON_LAND:
                 onLandProcess();
@@ -84,32 +83,19 @@ public class FlightSimulation implements Runnable {
     }
 
     private void landingProcess(){
-        log.info(String.format("landing , %d", time));
-        LatLonAlt currentPosition = drone.getPosition();
-        if(currentPosition.alt > 1)
-        {
-            LatLonAlt newPosition = mission.changeAlt(5, currentPosition);
-            drone.setPosition(newPosition);
-        }
-        else {
+
+        if(landingProcess.update(drone)){
             droneState = DroneState.ON_LAND;
-            drone.sendMessage(StateEventMessage.LANDING_DETECTED);
+            //drone.sendMessage(StateEventMessage.LANDING_DETECTED);
         }
     }
 
     private void takingOffProcess() {
-        log.info(String.format("taking off , %d", time));
-        LatLonAlt currentPosition = drone.getPosition();
-        if (currentPosition.alt < 20)
-        {
-            LatLonAlt newPosition = mission.changeAlt(-5, currentPosition);
-            drone.setPosition(newPosition);
-        }
-        else {
+        if(takeOffProcess.update(drone)){
             droneState = DroneState.MISSION;
             drone.setSpeed(mission.getSpeed());
             log.info("ready to fly");
-            drone.sendMessage(StateEventMessage.MISSION_STARTED);
+            //drone.sendMessage(StateEventMessage.MISSION_STARTED);
         }
     }
 
@@ -124,22 +110,22 @@ public class FlightSimulation implements Runnable {
                 drone.setPosition(home);
                 log.info("take off detected. going to client");
                 droneState = DroneState.TAKING_OFF;
-                drone.sendMessage(StateEventMessage.TAKEOFF_DETECTED);
+                //drone.sendMessage(StateEventMessage.TAKEOFF_DETECTED);
                 break;
 
             case TO_CLIENT:
                 landedState = LandedState.TO_HOME;
-                log.info(String.format("landed on client side , %d", time));
+                log.info(String.format("landed on client side"));
                 mission.init(client, home);
                 log.info("take off detected. going home");
-                drone.sendMessage(StateEventMessage.TAKEOFF_DETECTED);
+                //drone.sendMessage(StateEventMessage.TAKEOFF_DETECTED);
 
                 droneState = DroneState.TAKING_OFF;
                 break;
 
             case TO_HOME:
                 landedState = LandedState.COMPLETED;
-                log.info(String.format("landed at home ,  %d", time));
+                log.info(String.format("landed at home"));
                 break;
 
             case COMPLETED:
@@ -153,18 +139,14 @@ public class FlightSimulation implements Runnable {
     }
 
     private void missionProcess(){
-        updatePosition();
-        if(mission.completed(drone.getPosition())){
+        if(mission.update(drone))
+        {
             droneState = DroneState.LANDING;
             drone.setSpeed(0);
-            drone.sendMessage(StateEventMessage.LANDING);
+           // drone.sendMessage(StateEventMessage.LANDING);
         }
     }
 
-    private void updatePosition(){
-        LatLonAlt newPosition  = mission.updatePosition(drone.getPosition());
-        log.info(String.format("new position: %s , %d", newPosition, time));
-        drone.setPosition(newPosition);
-    }
+
 
 }

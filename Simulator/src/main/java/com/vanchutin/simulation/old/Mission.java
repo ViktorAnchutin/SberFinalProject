@@ -1,5 +1,6 @@
-package com.vanchutin.simulation;
+package com.vanchutin.simulation.old;
 
+import com.vanchutin.drone.Drone;
 import com.vanchutin.jmavlib.GlobalPositionProjector;
 import com.vanchutin.jmavlib.LatLonAlt;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ public class Mission {
     }
 
     private GlobalPositionProjector projector;
-    private double[] destinationLocalCoordinates;
+    private LatLonAlt destination;
     private final double acceptanceRadius = 20; // m
     private double distanceX, distanceY, distance;
     private double speedX, speedY, cruiseSpeed = 13.8;// m / s
@@ -30,26 +31,36 @@ public class Mission {
         projector.init(start);
         computeDistance(finish);
         computeSpeedProjections();
+        destination = finish;
     }
 
 
-    public boolean completed(LatLonAlt currentPosition){
+    private boolean completed(LatLonAlt currentPosition){
         double[] currentPositionLocalCoordinates = projector.project(currentPosition);
-        double distanceX = currentPositionLocalCoordinates[0] - destinationLocalCoordinates[0] ;
-        double distanceY = currentPositionLocalCoordinates[1] - destinationLocalCoordinates[1];
-        return acceptanceRadius > sqrt(distanceX*distanceX + distanceY*distanceY);
+        double[] destinationLocalCoordinates = projector.project(destination);
+        double distanceToFinishX = currentPositionLocalCoordinates[0] - destinationLocalCoordinates[0] ;
+        double distanceToFinishY = currentPositionLocalCoordinates[1] - destinationLocalCoordinates[1];
+        double distanceToFinish = sqrt(distanceToFinishX*distanceToFinishX + distanceToFinishY*distanceToFinishY);
+        return distanceToFinish < acceptanceRadius;
     }
 
-    public LatLonAlt updatePosition(LatLonAlt currentPosition){
+    public boolean update(Drone drone){
+
+        LatLonAlt dronePosition = drone.getPosition();
+        if(completed(dronePosition))
+            return true;
+        else{
+            LatLonAlt newPosition = updatePosition(dronePosition);
+            drone.setPosition(newPosition);
+        }
+        return false;
+    }
+
+    private LatLonAlt updatePosition(LatLonAlt currentPosition){
         double dx = speedX*dt;
         double dy = speedY*dt;
         double[] arr = {dx, dy, 0};
        return currentPosition.add(arr) ;
-    }
-
-    public LatLonAlt changeAlt(int val, LatLonAlt currentPosition){
-        double[] changeVector = new double[]{0,0,val};
-        return currentPosition.add(changeVector);
     }
 
     private void computeSpeedProjections(){
@@ -59,7 +70,7 @@ public class Mission {
 
     private void computeDistance(LatLonAlt destinationPoint){
 
-        destinationLocalCoordinates = projector.project(destinationPoint);
+        double[] destinationLocalCoordinates = projector.project(destinationPoint);
         distanceX = destinationLocalCoordinates[0];
         distanceY = destinationLocalCoordinates[1];
         distance = sqrt(distanceX*distanceX + distanceY*distanceY);

@@ -31,10 +31,26 @@ public @Data class Drone {
         sendEvent(telemetryEvent);
     }
 
-    public void sendMessage(String message){
-        StateEvent event = new StateEvent(id, message);
-        sendEvent(event);
+    public void emitLandedAtTheClient(){
+        sendMessage("landed at the client");
     }
+
+    public void emitLandedOnBase(){
+        sendMessage("landed on base");
+    }
+
+    public void emitMissionStarted(){
+        sendMessage("mission started");
+    }
+
+    public void emitLanding(){
+        sendMessage("landing");
+    }
+
+    public void emitTakeOffDetected(){
+        sendMessage("take off detected");
+    }
+
 
     public void setBattery(double battery){
         telemetry.setBattery(battery);
@@ -46,12 +62,17 @@ public @Data class Drone {
 
 
 
+    private void sendMessage(String message){
+        StateEvent event = new StateEvent(id, message);
+        sendEvent(event);
+    }
+
 
     private void sendEvent(Event event){
         try {
             String message =  objectMapper.writeValueAsString(event);
             System.out.println(message);
-            httpClient.post(message);
+            //httpClient.post(message);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
         }

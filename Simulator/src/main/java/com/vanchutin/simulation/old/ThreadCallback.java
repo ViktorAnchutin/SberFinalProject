@@ -1,4 +1,4 @@
-package com.vanchutin.simulation;
+package com.vanchutin.simulation.old;
 
 @FunctionalInterface
 public interface ThreadCallback<T> {

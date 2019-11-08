@@ -6,6 +6,6 @@ import lombok.Data;
 public @Data
 class Telemetry {
     private double speed;
-    private double battery;
+    private double battery = 100;
     private LatLonAlt location;
 }

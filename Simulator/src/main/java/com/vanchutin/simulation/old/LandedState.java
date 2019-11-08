@@ -1,4 +1,4 @@
-package com.vanchutin.simulation;
+package com.vanchutin.simulation.old;
 
 public enum LandedState {
     START,
