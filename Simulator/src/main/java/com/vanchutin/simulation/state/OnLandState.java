@@ -2,8 +2,10 @@ package com.vanchutin.simulation.state;
 
 import com.vanchutin.simulation.Simulation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class OnLandState implements SimulationState {
 
     @Override

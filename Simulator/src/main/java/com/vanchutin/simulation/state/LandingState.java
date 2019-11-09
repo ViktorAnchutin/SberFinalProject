@@ -2,11 +2,12 @@ package com.vanchutin.simulation.state;
 
 import com.vanchutin.drone.Drone;
 import com.vanchutin.jmavlib.LatLonAlt;
-import com.vanchutin.simulation.AltitudeChanger;
 import com.vanchutin.simulation.Simulation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class LandingState extends AltitudeChanger implements SimulationState {
 
     @Override

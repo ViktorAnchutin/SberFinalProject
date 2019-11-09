@@ -1,47 +1,41 @@
 package com.vanchutin.httpClient;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+
+import java.net.*;
 
 @Slf4j
 public class HttpClient {
 
     private final String producerUrl = "http://localhost:8081/producer";
 
+    private RestTemplate restTemplate = new RestTemplate();
+
     public void post(String message){
 
-        HttpURLConnection con = null;
-
+        URI uri = null;
+        HttpEntity<String> request = new HttpEntity<>(message);
         try {
-            URL url = new URL(producerUrl);
-
-            con = (HttpURLConnection) url.openConnection();
-
-
-            con.setRequestMethod("GET");
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setDoOutput(true);
-            OutputStream out = con.getOutputStream();
-
-            out.write(message.getBytes());
-
-            log.info("Response Code:"
-                    + con.getResponseCode());
-
-        } catch (IOException e) {
-            log.error(e.getMessage());
+            uri = new URI(producerUrl);
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        finally {
-            con.disconnect();
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.postForEntity(uri, request, String.class);
+        }catch (RestClientException e){
+            log.error(e.getLocalizedMessage());
+            return;
         }
-
+        if(response.getStatusCode() != HttpStatus.OK)
+            log.error("Message has not been posted");
     }
 
 

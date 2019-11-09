@@ -2,7 +2,9 @@ package com.vanchutin.drone;
 
 import com.vanchutin.jmavlib.LatLonAlt;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
+@Component
 public @Data
 class Telemetry {
     private double speed;

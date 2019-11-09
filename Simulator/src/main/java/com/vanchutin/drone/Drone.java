@@ -8,22 +8,25 @@ import com.vanchutin.event.TelemetryEvent;
 import com.vanchutin.httpClient.HttpClient;
 import com.vanchutin.jmavlib.LatLonAlt;
 import lombok.Data;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 public @Data class Drone {
 
-    int id;
-    Telemetry telemetry;
+    private int id;
+    @Setter
+    private Telemetry telemetry;
+    @Setter
     HttpClient httpClient;
-    ObjectMapper objectMapper;
+    @Setter
+    private ObjectMapper objectMapper;
 
+    private boolean busy = false;
 
-    public Drone(int id, HttpClient httpClient){
+    public Drone(int id){
         this.id = id;
-        this.httpClient = httpClient;
-        objectMapper = new ObjectMapper();
-        telemetry = new Telemetry();
     }
 
     public void sendTelemetry(){
@@ -72,7 +75,7 @@ public @Data class Drone {
         try {
             String message =  objectMapper.writeValueAsString(event);
             System.out.println(message);
-            //httpClient.post(message);
+            httpClient.post(message);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
         }
@@ -91,4 +94,13 @@ public @Data class Drone {
         if(newBattery<0) newBattery = 0;
         telemetry.setBattery(newBattery);
     }
+
+    public boolean isBusy() {
+        return this.busy;
+    }
+
+    public void setBusy(){
+        this.busy = true;
+    }
+
 }

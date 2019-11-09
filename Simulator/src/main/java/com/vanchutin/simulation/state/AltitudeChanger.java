@@ -1,4 +1,4 @@
-package com.vanchutin.simulation;
+package com.vanchutin.simulation.state;
 
 import com.vanchutin.jmavlib.LatLonAlt;
 

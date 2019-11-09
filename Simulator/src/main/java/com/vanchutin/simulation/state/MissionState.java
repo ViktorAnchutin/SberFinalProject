@@ -6,11 +6,13 @@ import com.vanchutin.jmavlib.LatLonAlt;
 import com.vanchutin.simulation.Simulation;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import static java.lang.Math.sqrt;
 
 @Slf4j
 @NoArgsConstructor
+@Component
 public class MissionState implements SimulationState {
 
     private GlobalPositionProjector projector;

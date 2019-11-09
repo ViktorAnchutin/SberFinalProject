@@ -6,15 +6,16 @@ import com.vanchutin.simulation.state.*;
 import lombok.Getter;
 import lombok.Setter;
 
+
 public class Simulation implements Runnable{
 
-    @Getter
+    @Getter @Setter
     private OnLandState onLandState;
-    @Getter
+    @Getter @Setter
     private TakeOffState takeOffState;
-    @Getter
+    @Getter @Setter
     private MissionState missionState;
-    @Getter
+    @Getter @Setter
     private LandingState landingState;
     @Setter
     private SimulationState state;
@@ -29,15 +30,9 @@ public class Simulation implements Runnable{
     private boolean simulationFinished = false;
 
 
-    public Simulation(Drone drone, LatLonAlt home, LatLonAlt destination){
+    public Simulation(Drone drone, LatLonAlt home){
         this.drone = drone;
-        this.destination = destination;
         this.home = home;
-        onLandState = new OnLandState();
-        takeOffState = new TakeOffState();
-        missionState = new MissionState(home, destination);
-        landingState = new LandingState();
-        state = takeOffState;
     }
 
 
@@ -45,6 +40,7 @@ public class Simulation implements Runnable{
     public void run() {
 
         drone.setPosition(home);
+        drone.setBattery(100);
 
         while ( !simulationFinished ) {
             state.doSimulation(this);

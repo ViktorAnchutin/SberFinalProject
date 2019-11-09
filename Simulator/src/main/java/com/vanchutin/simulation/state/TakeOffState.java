@@ -3,11 +3,12 @@ package com.vanchutin.simulation.state;
 
 import com.vanchutin.drone.Drone;
 import com.vanchutin.jmavlib.LatLonAlt;
-import com.vanchutin.simulation.AltitudeChanger;
 import com.vanchutin.simulation.Simulation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class TakeOffState extends AltitudeChanger implements SimulationState {
 
     private final int UPDATE_STEP = 5; // m
