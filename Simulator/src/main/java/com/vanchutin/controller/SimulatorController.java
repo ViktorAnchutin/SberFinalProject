@@ -1,8 +1,9 @@
 package com.vanchutin.controller;
 
+import com.vanchutin.models.Command;
 import com.vanchutin.simulation.SimulationManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +15,7 @@ public class SimulatorController {
     @Autowired
     SimulationManager simulationManager;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity launchDrone(@RequestBody Command command) {
 
         int droneId = command.getDroneId();

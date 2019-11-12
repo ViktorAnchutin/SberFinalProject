@@ -7,6 +7,7 @@ import com.vanchutin.event.StateEvent;
 import com.vanchutin.event.TelemetryEvent;
 import com.vanchutin.httpClient.HttpClient;
 import com.vanchutin.jmavlib.LatLonAlt;
+import com.vanchutin.models.Telemetry;
 import lombok.Data;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -95,12 +96,16 @@ public @Data class Drone {
         telemetry.setBattery(newBattery);
     }
 
-    public boolean isBusy() {
+    public synchronized boolean isBusy() {
         return this.busy;
     }
 
-    public void setBusy(){
+    public synchronized void setBusy(){
         this.busy = true;
+    }
+
+    public synchronized void setFree(){
+        this.busy = false;
     }
 
 }

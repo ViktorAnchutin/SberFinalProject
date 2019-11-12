@@ -1,6 +1,7 @@
 package com.vanchutin.controller;
 
-import com.vanchutin.producer.MessageProducer;
+
+import com.vanchutin.service.ProducerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -16,13 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ProducerController {
 
     @Autowired
-    MessageProducer messageProducer;
+    ProducerService producerService;
 
     @PostMapping
     public ResponseEntity<String> createEvent(HttpEntity<String> httpEntity){
         String message  =  httpEntity.getBody();
         log.info(String.format("Agent message received: %s", message));
-        messageProducer.publish(message);
+        producerService.process(message);
         return ResponseEntity.ok().build();
     }
 

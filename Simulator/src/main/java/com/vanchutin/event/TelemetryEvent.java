@@ -1,6 +1,6 @@
 package com.vanchutin.event;
 
-import com.vanchutin.drone.Telemetry;
+import com.vanchutin.models.Telemetry;
 import lombok.Data;
 
 public @Data

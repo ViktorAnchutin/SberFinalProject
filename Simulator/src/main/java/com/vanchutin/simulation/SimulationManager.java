@@ -2,6 +2,7 @@ package com.vanchutin.simulation;
 
 import com.vanchutin.drone.Drone;
 import com.vanchutin.jmavlib.LatLonAlt;
+import com.vanchutin.models.Location;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,18 +28,15 @@ public class SimulationManager {
         this.home = home;
     }
 
-    public void start(){
-         launchDrone(1, new LatLonAlt(55.982099, 37.909270, 0));
-         executorService.shutdown();
-    }
 
 
-    public synchronized boolean launchDrone(int droneId, LatLonAlt client){
+
+    public synchronized boolean launchDrone(int droneId, Location clientLocation){
         Drone drone = drones.get(droneId);
         if(drone.isBusy())
             return false;
         drone.setBusy();
-        executorService.execute( simulationFactory.get(drones.get(droneId), home, client));
+        executorService.execute( simulationFactory.get(drones.get(droneId), home, clientLocation));
         return true;
     }
 

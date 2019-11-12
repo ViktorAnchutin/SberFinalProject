@@ -1,0 +1,1 @@
+delete from delivery where copter_id=:droneId;

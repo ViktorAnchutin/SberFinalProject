@@ -1,4 +1,4 @@
-package com.vanchutin.drone;
+package com.vanchutin.models;
 
 import com.vanchutin.jmavlib.LatLonAlt;
 import lombok.Data;

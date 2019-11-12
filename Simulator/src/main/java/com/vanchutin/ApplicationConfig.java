@@ -2,18 +2,15 @@ package com.vanchutin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vanchutin.drone.Drone;
-import com.vanchutin.drone.Telemetry;
+import com.vanchutin.models.Telemetry;
 import com.vanchutin.httpClient.HttpClient;
 import com.vanchutin.jmavlib.LatLonAlt;
 import com.vanchutin.simulation.SimulationFactory;
 import com.vanchutin.simulation.SimulationManager;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.Executors;
 

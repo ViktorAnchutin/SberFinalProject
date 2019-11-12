@@ -6,11 +6,13 @@ import com.vanchutin.deliveryManager.events.delivery.DeliveryEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "spring.kafkaBeans", havingValue = "enabled")
 public class KafkaProducer {
 
     @Value(value = "${delivery.topic.name}")

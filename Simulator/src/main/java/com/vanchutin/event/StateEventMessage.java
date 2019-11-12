@@ -1,4 +1,4 @@
-package com.vanchutin.drone;
+package com.vanchutin.event;
 
 public class StateEventMessage {
     public static final String TAKEOFF_DETECTED = "take off detected";

@@ -16,8 +16,11 @@ public class KafkaTopicConfig {
     @Value(value = "${kafka.bootstrapAddress}")
     private String bootstrapAddress;
 
-    @Value(value = "${message.topic.name}")
-    private String topic;
+    @Value(value = "${kafka.topic.state}")
+    private String topicState;
+
+    @Value(value = "${kafka.topic.telemetry}")
+    private String topicTelemetry;
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
@@ -27,7 +30,12 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic topic1() {
-        return new NewTopic(topic, 1, (short) 1);
+    public NewTopic topicState() {
+        return new NewTopic(topicState, 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic topicTelemetry() {
+        return new NewTopic(topicTelemetry, 1, (short) 1);
     }
 }

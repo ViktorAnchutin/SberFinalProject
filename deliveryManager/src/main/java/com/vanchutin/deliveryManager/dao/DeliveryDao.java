@@ -17,6 +17,9 @@ public class DeliveryDao {
     @ResourceSql("getOrderByDroneId.sql")
     private String getOrderByDroneIdTemplate;
 
+    @ResourceSql("deleteDelivery.sql")
+    private String deleteDeliveryTemplate;
+
     @Autowired
     private NamedParameterJdbcTemplate namedJdbcTemplate;
 
@@ -30,7 +33,13 @@ public class DeliveryDao {
     public int getOrderByDroneId(int droneId){
         MapSqlParameterSource parameters  = new MapSqlParameterSource();
         parameters.addValue("droneId", droneId);
-        return namedJdbcTemplate.queryForObject(createDeliveryTemplate, parameters, Integer.class);
+        return namedJdbcTemplate.queryForObject(getOrderByDroneIdTemplate, parameters, Integer.class);
+    }
+
+    public void deleteDelivery(int droneId){
+        MapSqlParameterSource parameters  = new MapSqlParameterSource();
+        parameters.addValue("droneId", droneId);
+        namedJdbcTemplate.update(deleteDeliveryTemplate, parameters);
     }
 
 }

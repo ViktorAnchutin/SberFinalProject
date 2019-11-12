@@ -41,6 +41,7 @@ public class Simulation implements Runnable{
 
         drone.setPosition(home);
         drone.setBattery(100);
+        drone.emitTakeOffDetected();
 
         while ( !simulationFinished ) {
             state.doSimulation(this);
@@ -48,6 +49,8 @@ public class Simulation implements Runnable{
             drone.sendTelemetry();
             sleep(1000);
         }
+
+        drone.setFree();
     }
 
     private void sleep(int time){

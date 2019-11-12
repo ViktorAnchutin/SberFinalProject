@@ -3,15 +3,18 @@ package com.vanchutin.deliveryManager.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vanchutin.deliveryManager.events.DroneStateEvent;
+import com.vanchutin.deliveryManager.events.OrderPlacedEvent;
 import com.vanchutin.deliveryManager.service.DeliveryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@ConditionalOnProperty(name = "spring.kafkaBeans", havingValue = "enabled")
 public class KafkaConsumer {
 
     @Autowired
@@ -23,14 +26,20 @@ public class KafkaConsumer {
     @Value(value = "${copter.topic.message}")
     private String desiredStateEvent;
 
-    @KafkaListener(topics = "orderPlacedEvents", groupId = "deliveryManager")
+    @KafkaListener(topics = "orderPlaced", groupId = "deliveryManager")
     public void listenOrders(String message) {
-        int orderId = Integer.valueOf(message);
-        deliveryService.startDelivery(orderId);
+        OrderPlacedEvent eventMessage=null;
+        try {
+            eventMessage = objectMapper.readValue(message, OrderPlacedEvent.class);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
+            return;
+        }
+        deliveryService.startDelivery(eventMessage.getOrder_id(), eventMessage.getLocation());
         log.info("Received Messasge in group deliveryManager: " + message);
     }
 
-    @KafkaListener(topics = "copterStateEvents", groupId = "deliveryManager")
+    @KafkaListener(topics = "droneState", groupId = "deliveryManager")
     public void listenCopterState(String message) {
 
         DroneStateEvent droneStateEvent = null;
@@ -38,6 +47,7 @@ public class KafkaConsumer {
             droneStateEvent = objectMapper.readValue(message, DroneStateEvent.class);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage());
+            return;
         }
         if(!droneStateEvent.getEvent().equals(desiredStateEvent))
             return;
