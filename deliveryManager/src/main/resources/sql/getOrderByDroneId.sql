@@ -1,1 +1,1 @@
-select order_id from delivery where copter_id = :droneId;
+select order_id from deliveries where copter_id = :droneId;

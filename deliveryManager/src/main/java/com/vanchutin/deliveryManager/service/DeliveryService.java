@@ -30,7 +30,7 @@ public class DeliveryService {
 
 
 
-    public void startDelivery(int orderId, Location clientLocation){
+    public void startDelivery(String orderId, Location clientLocation){
         try {
             int droneId = freeDronesService.getDroneId();
             simulatorManager.launchDrone(droneId, clientLocation);
@@ -38,12 +38,12 @@ public class DeliveryService {
             kafkaProducer.publishEvent(new CopterSentEvent(orderId));
         }
         catch (Exception e){
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
     public void completeDelivery(int droneId){
-        int orderId = deliveryDao.getOrderByDroneId(droneId);
+        String orderId = deliveryDao.getOrderByDroneId(droneId);
         deliveryDao.deleteDelivery(droneId);
         kafkaProducer.publishEvent(new DeliveryCompletedEvent(orderId));
     }

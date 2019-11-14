@@ -1,1 +1,1 @@
-insert into delivery (order_id, copter_id) values (:orderId, :droneId);
+insert into deliveries (order_id, copter_id) values (:orderId, :droneId);

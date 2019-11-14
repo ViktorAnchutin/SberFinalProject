@@ -23,17 +23,17 @@ public class DeliveryDao {
     @Autowired
     private NamedParameterJdbcTemplate namedJdbcTemplate;
 
-    public void createDelivery(int droneId, int orderId){
+    public void createDelivery(int droneId, String orderId){
         MapSqlParameterSource parameters  = new MapSqlParameterSource();
         parameters.addValue("droneId", droneId);
         parameters.addValue("orderId", orderId);
         namedJdbcTemplate.update(createDeliveryTemplate, parameters);
     }
 
-    public int getOrderByDroneId(int droneId){
+    public String getOrderByDroneId(int droneId){
         MapSqlParameterSource parameters  = new MapSqlParameterSource();
         parameters.addValue("droneId", droneId);
-        return namedJdbcTemplate.queryForObject(getOrderByDroneIdTemplate, parameters, Integer.class);
+        return namedJdbcTemplate.queryForObject(getOrderByDroneIdTemplate, parameters, String.class);
     }
 
     public void deleteDelivery(int droneId){

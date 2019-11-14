@@ -5,6 +5,6 @@ import lombok.Data;
 
 public @Data
 class OrderPlacedEvent {
-    private int order_id;
+    private String order_id;
     private Location location;
 }

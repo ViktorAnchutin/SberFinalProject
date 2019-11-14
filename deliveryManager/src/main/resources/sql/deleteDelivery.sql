@@ -1,1 +1,1 @@
-delete from delivery where copter_id=:droneId;
+delete from deliveries where copter_id=:droneId;
