@@ -6,6 +6,8 @@ import com.vanchutin.deliveryManager.service.restClient.HttpClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FreeDronesService {
     @Autowired
@@ -13,6 +15,8 @@ public class FreeDronesService {
 
 
     public Integer getDroneId() throws JsonProcessingException {
-        return 5;//httpClientService.getFreeDrones().get(0);
+        List<Integer> freeDrones =  httpClientService.getFreeDrones();
+        freeDrones.forEach(System.out::println);
+        return freeDrones.get(0);
     }
 }
