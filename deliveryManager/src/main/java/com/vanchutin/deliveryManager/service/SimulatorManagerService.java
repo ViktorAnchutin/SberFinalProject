@@ -26,9 +26,13 @@ public class SimulatorManagerService {
     String simulatorUrl;
 
 
-    public void launchDrone(int droneId, Location clientLocation) throws JsonProcessingException, URISyntaxException {
+    public void launchDrone(int droneId, Location clientLocation) throws ServiceLayerException {
+        try {
             Command command = new Command(droneId, clientLocation);
             String jsonMsg = objectMapper.writeValueAsString(command);
             httpClientService.post(jsonMsg, simulatorUrl);
+        } catch (JsonProcessingException e){
+            throw new ServiceLayerException("Failed processing json", e);
+        }
     }
 }

@@ -19,13 +19,8 @@ public class SimulatorManagerServiceTest {
     SimulatorManagerService simulationService;
 
     @Test
-    public void launchDrone_shouldLaunchDrone() {
-        try {
-            simulationService.launchDrone(3, new Location(55.982099, 37.909270));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+    public void launchDrone_shouldLaunchDrone() throws ServiceLayerException {
+        simulationService.launchDrone(3, new Location(55.982099, 37.909270));
+
     }
 }

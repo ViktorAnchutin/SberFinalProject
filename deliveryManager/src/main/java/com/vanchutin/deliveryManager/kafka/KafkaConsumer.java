@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vanchutin.deliveryManager.events.DroneStateEvent;
 import com.vanchutin.deliveryManager.events.OrderPlacedEvent;
 import com.vanchutin.deliveryManager.service.DeliveryService;
+import com.vanchutin.deliveryManager.service.ServiceLayerException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,33 +29,31 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "orderPlaced", groupId = "deliveryManager")
     public void listenOrders(String message) {
-        OrderPlacedEvent eventMessage=null;
         try {
-            eventMessage = objectMapper.readValue(message, OrderPlacedEvent.class);
-        } catch (JsonProcessingException e) {
-            log.error(e.getMessage());
-            return;
+            OrderPlacedEvent eventMessage = objectMapper.readValue(message, OrderPlacedEvent.class);
+            deliveryService.startDelivery(eventMessage.getOrder_id(), eventMessage.getLocation());
+            log.info("Received Messasge in group deliveryManager: " + message);
+        } catch (JsonProcessingException e){
+            log.error("Failed to process event message", e);
+        } catch (ServiceLayerException e){
+            log.error("Failed to handle event", e);
         }
-        deliveryService.startDelivery(eventMessage.getOrder_id(), eventMessage.getLocation());
-        log.info("Received Messasge in group deliveryManager: " + message);
     }
 
     @KafkaListener(topics = "droneState", groupId = "deliveryManager")
     public void listenCopterState(String message) {
-
-        DroneStateEvent droneStateEvent = null;
         try {
+            DroneStateEvent droneStateEvent = null;
             droneStateEvent = objectMapper.readValue(message, DroneStateEvent.class);
-        } catch (JsonProcessingException e) {
-            log.error(e.getMessage());
-            return;
+            if (!droneStateEvent.getEvent().equals(desiredStateEvent))
+                return;
+            int copterId = droneStateEvent.getDroneId();
+            deliveryService.completeDelivery(copterId);
+        } catch (JsonProcessingException e){
+            log.error("Failed to deserialize json", e);
+        } catch (ServiceLayerException e){
+            log.error("Delivery is not completed", e);
         }
-        if(!droneStateEvent.getEvent().equals(desiredStateEvent))
-            return;
-
-        int copterId = droneStateEvent.getDroneId();
-        deliveryService.completeDelivery(copterId);
-        log.info("Received drone id: " + copterId);
     }
 
 }

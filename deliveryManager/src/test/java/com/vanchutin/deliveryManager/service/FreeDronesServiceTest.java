@@ -17,13 +17,8 @@ public class FreeDronesServiceTest {
     FreeDronesService freeDronesService;
 
     @Test
-    public void getDroneId() {
-        try {
-            int res = freeDronesService.getDroneId();
-            System.out.println(res);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+    public void getDroneId() throws ServiceLayerException {
+           int res = freeDronesService.getDroneId();
 
     }
 }

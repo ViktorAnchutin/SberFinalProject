@@ -14,7 +14,7 @@ public class FreeDronesService {
     HttpClientService httpClientService;
 
 
-    public Integer getDroneId() throws JsonProcessingException {
+    public Integer getDroneId() throws ServiceLayerException {
         List<Integer> freeDrones =  httpClientService.getFreeDrones();
         freeDrones.forEach(System.out::println);
         return freeDrones.get(0);

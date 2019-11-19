@@ -1,0 +1,1 @@
+select copter_id from deliveries where order_id = :orderId;
