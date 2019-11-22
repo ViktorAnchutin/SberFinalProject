@@ -16,20 +16,11 @@ public class FreeDronesService {
     private int var;
 
     public Optional<Integer> getDroneId() throws ServiceLayerException{
-        var++;
-        if(var>2){
-            if(var>4){
-                return Optional.of(var);
-            }
-            return Optional.empty();
-        }
-        return Optional.of(var);
 
-       /* return Optional.of(var);
         List<Integer> freeDrones =  httpClientService.getFreeDrones();
         if(freeDrones.isEmpty())
             return Optional.empty();
-        return Optional.of(freeDrones.get(0)); */
+        return Optional.of(freeDrones.get(0));
 
     }
 }
