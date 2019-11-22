@@ -1,7 +1,7 @@
 package com.vanchutin.deliveryManager.controller;
 
 import com.vanchutin.deliveryManager.dto.DeliveryDto;
-import com.vanchutin.deliveryManager.model.Delivery;
+
 import com.vanchutin.deliveryManager.service.DeliveryService;
 import com.vanchutin.deliveryManager.service.ServiceLayerException;
 import lombok.extern.slf4j.Slf4j;

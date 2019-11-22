@@ -12,7 +12,7 @@ public class TestController {
 
     @GetMapping(path = "freeOnes")
     public ResponseEntity<Integer[]> getFreeCopters(){
-        Integer[] freeCopters = new Integer[]{3,4,5,6,7,8,9};
+        Integer[] freeCopters = new Integer[0];
         return ResponseEntity.ok(freeCopters);
     }
 

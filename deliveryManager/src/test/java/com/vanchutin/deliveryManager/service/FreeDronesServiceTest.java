@@ -18,7 +18,6 @@ public class FreeDronesServiceTest {
 
     @Test
     public void getDroneId() throws ServiceLayerException {
-           int res = freeDronesService.getDroneId();
 
     }
 }

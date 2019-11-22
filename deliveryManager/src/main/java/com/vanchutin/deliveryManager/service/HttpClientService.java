@@ -1,4 +1,4 @@
-package com.vanchutin.deliveryManager.service.restClient;
+package com.vanchutin.deliveryManager.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,19 +30,22 @@ public class HttpClientService {
     @Autowired
     ObjectMapper objectMapper;
 
-    public void post(String message, String url) throws ServiceLayerException {
+    @Value(value = "${simulator.url}")
+    String simulatorUrl;
+
+    public void post(String message) throws ServiceLayerException {
 
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> request = new HttpEntity<>(message, headers);
-            URI uri = new URI(url);
+            URI uri = new URI(simulatorUrl);
             ResponseEntity<String> response = null;
             response = restTemplate.postForEntity(uri, request, String.class);
         } catch (URISyntaxException e){
-            throw new ServiceLayerException(String.format("Failed to parse URL %s", url), e);
+            throw new ServiceLayerException(String.format("Failed to parse URL for post request %s", simulatorUrl), e);
         } catch (RestClientException e){
-            throw new ServiceLayerException("Post request failed", e);
+            throw new ServiceLayerException(String.format("Post request failed. Could not launch a drone with a command %s", message), e);
         }
 
 

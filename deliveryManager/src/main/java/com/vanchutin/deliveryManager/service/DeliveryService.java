@@ -7,6 +7,7 @@ import com.vanchutin.deliveryManager.events.delivery.CopterSentEvent;
 import com.vanchutin.deliveryManager.events.delivery.DeliveryCompletedEvent;
 
 import com.vanchutin.deliveryManager.kafka.KafkaProducer;
+import com.vanchutin.deliveryManager.model.Delivery;
 import com.vanchutin.deliveryManager.model.Location;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +28,15 @@ public class DeliveryService {
     KafkaProducer kafkaProducer;
 
     @Autowired
-    FreeDronesService freeDronesService;
-
-    @Autowired
     SimulatorManagerService simulatorManager;
 
 
 
-    public void startDelivery(String orderId, Location clientLocation) throws ServiceLayerException {
+    public void startDelivery(Delivery delivery) throws ServiceLayerException {
         try {
-            int droneId = freeDronesService.getDroneId();
-            simulatorManager.launchDrone(droneId, clientLocation);
-            deliveryDao.createDelivery(droneId, orderId);
-            kafkaProducer.publishEvent(new CopterSentEvent(orderId));
+            simulatorManager.launchDrone(delivery.getDroneId(), delivery.getClientLocation());
+            deliveryDao.createDelivery(delivery.getDroneId(), delivery.getOrderId());
+            kafkaProducer.publishEvent(new CopterSentEvent(delivery.getOrderId()));
         }
         catch (DaoLayerException e){
             throw new ServiceLayerException("Failed to create delivery", e);
