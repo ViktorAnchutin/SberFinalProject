@@ -6,6 +6,7 @@ import com.vanchutin.jmavlib.LatLonAlt;
 import com.vanchutin.simulation.Simulation;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
 import static java.lang.Math.sqrt;
@@ -20,8 +21,13 @@ public class MissionState implements SimulationState {
     private LatLonAlt finish;
     private final double acceptanceRadius = 20; // m
     private double distanceX, distanceY, distance;
-    private double speedX, speedY, cruiseSpeed = 13.8;// m / s
-    private int dt = 1;
+    private double speedX, speedY;
+
+
+    private double cruiseSpeed = 14;// m /
+
+
+    private int dt =1;
 
     public MissionState(LatLonAlt start, LatLonAlt finish){
         this.start = start;
@@ -33,7 +39,7 @@ public class MissionState implements SimulationState {
     @Override
     public void doSimulation(Simulation simulation) {
         Drone drone = simulation.getDrone();
-        drone.setSpeed(cruiseSpeed);
+        drone.setSpeed(getNoisySpeed());
         LatLonAlt dronePosition = drone.getPosition();
         LatLonAlt newPosition = updatePosition(dronePosition);
         drone.setPosition(newPosition);
@@ -95,5 +101,9 @@ public class MissionState implements SimulationState {
         distanceY = destinationLocalCoordinates[1];
         distance = sqrt(distanceX*distanceX + distanceY*distanceY);
         log.info(String.format("distance to fly: %.3f km", distance/1000));
+    }
+
+    private double getNoisySpeed(){
+        return cruiseSpeed+Math.random();
     }
 }
