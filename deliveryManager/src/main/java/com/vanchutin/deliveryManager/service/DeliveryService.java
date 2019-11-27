@@ -24,7 +24,7 @@ public class DeliveryService {
     @Autowired
     DeliveryDao deliveryDao;
 
-    @Autowired(required = false)
+    @Autowired(required = false) // not inject the bean if kafka beans are disabled
     KafkaProducer kafkaProducer;
 
     @Autowired

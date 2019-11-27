@@ -91,7 +91,7 @@ public @Data class Drone {
     }
 
     public void updateBattery() {
-        double newBattery = telemetry.getBattery() - 0.3;
+        double newBattery = telemetry.getBattery() - 0.05;
         if(newBattery<0) newBattery = 0;
         telemetry.setBattery(newBattery);
     }

@@ -24,7 +24,7 @@ public class MissionState implements SimulationState {
     private double speedX, speedY;
 
 
-    private double cruiseSpeed = 14;// m /
+    private double cruiseSpeed = 20;// m /
 
 
     private int dt =1;
