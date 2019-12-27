@@ -14,6 +14,6 @@ This repository contains Simulator, Producer and DeliveryManager services from t
 ---------------------------------------------------------------------------------
 
 
-### Telemetry pipeline frome simulation to UI
+### Telemetry pipeline from simulation to UI
 
 ![Image project](https://github.com/ViktorAnchutin/SberFinalProject/blob/master/img/telemetryFlow.png)
